@@ -1,0 +1,68 @@
+// schema.prisma
+
+// Configuração do gerador do Prisma Client
+generator client {
+  provider = "prisma-client-js"
+}
+
+// Configuração da fonte de dados (banco de dados PostgreSQL)
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL") // A URL do banco de dados é definida no arquivo .env
+}
+
+// Modelo de Usuário
+model User {
+  id        Int      @id @default(autoincrement()) // ID único do usuário
+  email     String   @unique // Email único do usuário
+  name      String?  // Nome do usuário (opcional)
+  password  String   // Senha do usuário
+  createdAt DateTime @default(now()) // Data de criação do usuário
+  updatedAt DateTime @updatedAt // Data da última atualização do usuário
+
+  // Relacionamentos
+  activities Activity[] // Um usuário pode ter várias atividades
+  meals      Meal[]     // Um usuário pode ter várias refeições
+  sleeps     Sleep[]    // Um usuário pode ter vários registros de sono
+}
+
+// Modelo de Atividade Física
+model Activity {
+  id          Int      @id @default(autoincrement()) // ID único da atividade
+  type        String   // Tipo de atividade (ex: corrida, caminhada, etc.)
+  duration    Int      // Duração da atividade em minutos
+  calories    Int      // Calorias queimadas
+  date        DateTime // Data da atividade
+  userId      Int      // ID do usuário que realizou a atividade
+  user        User     @relation(fields: [userId], references: [id]) // Relacionamento com o usuário
+
+  createdAt   DateTime @default(now()) // Data de criação da atividade
+  updatedAt   DateTime @updatedAt // Data da última atualização da atividade
+}
+
+// Modelo de Hábitos Alimentares
+model Meal {
+  id          Int      @id @default(autoincrement()) // ID único da refeição
+  type        String   // Tipo de refeição (ex: café da manhã, almoço, etc.)
+  description String   // Descrição da refeição
+  calories    Int      // Calorias consumidas
+  date        DateTime // Data da refeição
+  userId      Int      // ID do usuário que registrou a refeição
+  user        User     @relation(fields: [userId], references: [id]) // Relacionamento com o usuário
+
+  createdAt   DateTime @default(now()) // Data de criação da refeição
+  updatedAt   DateTime @updatedAt // Data da última atualização da refeição
+}
+
+// Modelo de Sono
+model Sleep {
+  id          Int      @id @default(autoincrement()) // ID único do registro de sono
+  duration    Int      // Duração do sono em minutos
+  quality     String   // Qualidade do sono (ex: bom, ruim, etc.)
+  date        DateTime // Data do registro de sono
+  userId      Int      // ID do usuário que registrou o sono
+  user        User     @relation(fields: [userId], references: [id]) // Relacionamento com o usuário
+
+  createdAt   DateTime @default(now()) // Data de criação do registro de sono
+  updatedAt   DateTime @updatedAt // Data da última atualização do registro de sono
+}
